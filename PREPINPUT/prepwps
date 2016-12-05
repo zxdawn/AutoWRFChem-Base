@@ -20,6 +20,14 @@ pyprog="$mydir/../CONFIG/autowrf_namelist_main.py"
 
 cd "$mydir/../../WPS"
 
+# Turn off FDDA temporarily if its on - is this making WPS run slower?
+# Warning: is it running slower for a reason? Not having it turned on
+# did not seem to hurt my test run (RMSE was reduced compared to an 
+# unnudged run).
+if [[ $FDDA_ON == 1 ]]; then
+    python "$pyprog" tempmod --grid_fdda=0
+fi
+
 # Ensure that the WPS namelist is linked to the one in the CONFIG folder
 if [ -e namelist.wps ]; then
     # Back up only if not a link already
@@ -104,6 +112,9 @@ p="../../WPS/met_em*"
 for f in $p; do
     ln -s $f
 done
+
+# Reset any temporary modifications to the namelists
+python "$pyprog" tempmod
 
 # If using lat-lon map projection, then we need to modify the
 # WRF namelist permanently to account for the fact that the

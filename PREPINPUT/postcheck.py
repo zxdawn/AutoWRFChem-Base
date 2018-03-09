@@ -11,6 +11,8 @@
 #               4 bit: on = wrfinput missing variables, off = variables below min threshold
 #               8 bit = problem with wrfbdy
 #               16 bit: on = wrfbdy missing variables, off = variables below min threshold
+#               32 bit = wrfinput wrong dimensions
+#               64 bit = wrfbdy wrong dimensions
 from __future__ import print_function
 import pdb
 import argparse
@@ -26,6 +28,12 @@ except ImportError:
     import pyncdf as pync
     use_ncdump = True
     warn('package netCDF4 not found, using pyncdf. Some operations may not be possible or will be limited.')
+
+# Import the WRF namelist class library. This will require a bit a path manipulation
+_mydir = os.path.abspath(os.path.realpath(os.path.dirname(__file__)))
+_namelist_dir = os.path.abspath(os.path.join(_mydir,'..','CONFIG')
+sys.path.append(_namelist_dir)
+import autowrf_classlib as WRF
 
 min_nonzero_conc = 1e-15
 
@@ -102,6 +110,37 @@ def check_input_bdy(wrfin_file, wrfbdy_file, invars):
 
     return ecode
 
+def check_dimensions(wrfin_file, wrfbdy_file):
+    ecode = 0
+    namelist = WRF.NamelistContainer.LoadPickle()
+    if not _check_dims_one_file(wrfin_file, namelist.wrf_namelist):
+        ecode |= 32 + 2
+    if not _check_dims_one_file(wrfbdy_file, namelist.wrf_namelist):
+        ecode |= 64 + 8
+
+    return ecode
+    
+def _check_dims_one_file(file_in, wrf_namelist):
+    nl_ew = wrf_namelist.GetValOptNoSection('e_we')
+    nl_sn = wrf_namelist.GetValOptNoSection('e_sn')
+    nl_bt = wrf_namelist.GetValOptNoSection('e_vert') - 1  # as far as I can tell, the e_vert option is the staggered vertical dimension
+
+    if use_ncdump:
+        dims = pync.call_ncdump_dims(file_in)
+    else:
+        with ncdat(file_in, 'r') as wrffile:
+            dims = wrffile.dimensions
+
+    if nl_ew != dims['west_east']:
+        return False
+    elif nl_sn != dims['south_north']:
+        return False
+    elif nl_bt != dims['bottom_top']:
+        return False
+
+    return True
+    
+
 def get_args():
     parser = argparse.ArgumentParser(description='Check the results of WRF-Chem input preparation')
     parser.add_argument('wrfinput_file',help='Path to the wrfinput_dXX file to check')
@@ -143,6 +182,7 @@ def main():
     else:
         __shell_error('{0} is not a recognized value for --mode'.format(args.mode))
     ecode = check_input_bdy(args.wrfinput_file, args.wrfbdy_file, checkvars)
+    ecode |= check_dimensions(args.wrfinput_file, args.wrfbdy_file)
     exit(ecode)
 
 if __name__ == '__main__':

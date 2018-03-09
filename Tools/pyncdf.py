@@ -118,6 +118,12 @@ def call_ncdump_varnames(filename):
     return varnames
     
 
+def call_ncdump_dims(filename):
+    ncout = subprocess.check_output(['ncdump', '-h', filename])
+    lines = ncout.splitlines()
+    return parse_dims(lines)
+
+
 def call_ncdump_vals(variables, filename):
     if not os.path.isfile(filename):
         shell_error('{0} does not exist'.format(filename))

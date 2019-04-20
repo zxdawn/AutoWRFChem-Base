@@ -78,12 +78,7 @@ if [ -e namelist.wps -o -L namelist.wps ]; then
 fi
 ln -s $mydir/CONFIG/namelist.wps
 
-cd ../NEI/src/v04
-if [ -e namelist.wps -o -L namelist.wps ]; then
-    mv namelist.wps namelist.wps.autowrf-backup
-fi
-ln -s $mydir/CONFIG/namelist.wps
-cd ../v03
+cd ../MEIC/src
 if [ -e namelist.wps -o -L namelist.wps ]; then
     mv namelist.wps namelist.wps.autowrf-backup
 fi

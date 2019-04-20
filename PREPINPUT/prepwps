@@ -131,6 +131,8 @@ fi
 # Check if the met data was untarred yet or not
 if [[ $metType == 'NARR' ]]; then
     grib_prefix='merged_AWIP32'
+elif [[ $metType == 'ERA5' ]]; then
+    grib_prefix='ecmf_'
 else
     echo "Met type '$metType' not recognized"
 fi

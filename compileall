@@ -15,9 +15,9 @@ fi
 . "$mydir/envvar_wrfchem.cfg"
 
 # The exit status needs to reflect which compilations succeeded
-# start as 111111 (= 63) and remove the corresponding bit as each
+# start as 1111 (= 15) and remove the corresponding bit as each
 # one succeeds
-exitstat=63
+exitstat=15
 
 # First WRF-Chem
 cd ../WRFV3
@@ -78,43 +78,6 @@ else
     echo "  rerunning 'autowrfchem compile'"
 fi
 
-# Compile the convert_emiss.exe program
-cd ../WRFV3
-echo ""
-echo "Compiling convert_emiss.exe..."
-if $wrfcomp; then
-    if [ ! -f configure.wrf ]; then
-        echo "  ERROR: configure.wrf is not present; cannot compile WRF."
-        echo "  Run 'autowrfchem config' to produce the necessary file."
-        echo "  Remember, the clean command removes the configure.wrf file."
-    else
-        ./compile emi_conv >& "$mydir/COMPLOGS/compile_emi-conv.log"
-        convexit=$?
-        if [ $convexit -eq 0 ]; then
-            exitstat=$((exitstat - 4 ))
-            cd run
-            ln -sf ../chem/convert_emiss.exe
-            cd ..
-        fi
-    fi
-else
-    echo "  Cannot compile convert_emiss if WRF did not compile."
-    echo "  Skipping for now. Check the compile logs in"
-    echo "   $mydir/COMPLOGS"
-    echo "  to see why WRF failed to build and correct that issue before"
-    echo "  rerunning 'autowrfchem compile'"
-fi
-# Up next: NEI gridding code. Currently only v04 has a makefile.
-cd ../NEI/src/v04
-echo ""
-echo "Compiling NEI emiss_v04..."
-make >& "$mydir/COMPLOGS/compile_emissv04.log"
-nei11exit=$?
-if [ $nei11exit -eq 0 ]; then
-    exitstat=$((exitstat - 8))
-fi
-
-
 # Now MEGAN
 cd ../../../MEGAN/src
 echo ""
@@ -122,7 +85,7 @@ echo "Compiling megan_bio_emiss..."
 ./make_util megan_bio_emiss >& "$mydir/COMPLOGS/compile_megan.log"
 meganexit=$?
 if [ $meganexit -eq 0 ]; then
-    exitstat=$((exitstat - 16))
+    exitstat=$((exitstat - 4))
 fi
 
 # And MOZBC
@@ -132,7 +95,7 @@ echo "Compiling MOZBC..."
 ./make_mozbc >& "$mydir/COMPLOGS/compile_mozbc.log"
 mozbcexit=$?
 if [ $mozbcexit -eq 0 ]; then
-    exitstat=$((exitstat - 32))
+    exitstat=$((exitstat - 8))
 fi
 
 exit $exitstat

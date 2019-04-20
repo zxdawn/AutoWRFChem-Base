@@ -5,7 +5,7 @@ mydir=`pwd -P`
 outfile="$mydir/../wrfbuild.cfg"
 
 # Have the user choose available met 
-mettypes=("NARR" "Other")
+mettypes=("NARR" "ERA5" "Other")
 i=0
 echo "Choose the meterology type:"
 for met in "${mettypes[@]}"; do
@@ -15,7 +15,7 @@ done
 while true; do
     echo -n "Enter choice (1-${i}):"
     read userin
-    if [ $userin -ge 1 -a $userin -le $i ]; then
+    if [ $userin -ge 2 -a $userin -le $i ]; then
         break
     fi
 done

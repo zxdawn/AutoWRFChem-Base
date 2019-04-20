@@ -22,7 +22,7 @@ if $cleaninpt; then
     cd ../../WPS
     rm -f met_em*
 
-    cd ../NEI/src/v04
+    cd ../MEIC/src
     rm -f wrfem*
 
     cd ../../../MEGAN/src
@@ -34,10 +34,6 @@ else
 
     cd ../WPS
     ./clean
-
-    # currently only the version 4 NEI gridding code has a Makefile
-    cd ../NEI/src/v04
-    make clean
 
     cd ../../../MEGAN/src/
     rm megan_bio_emiss

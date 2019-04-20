@@ -49,6 +49,31 @@ def narr_next_sfc_date(curr_date):
     return curr_date + tdel
 
 
+def make_era_grib_list(start_date, end_date):
+    if (type(start_date) is not dt.datetime and type(start_date) is not dt.date or
+            type(end_date) is not dt.datetime and type(end_date) is not dt.date):
+        raise TypeError("start_date and end_date must be datetime or date objects")
+
+    era_files = []
+    era_files += list_era_grib_files(start_date, end_date, 'ml')
+    era_files += list_era_grib_files(start_date, end_date, 'sfc')
+
+    return era_files
+
+def list_era_grib_files(start_date, end_date, type):
+    # ERA5 files are daily
+    start_date = start_date.replace(minute=0, second=0, microsecond=0)
+
+    file_pattern = 'ecmf_{date}_an_{type}_0.grib1'
+    files = []
+    curr_date = start_date
+    while curr_date <= end_date:
+        files.append(file_pattern.format(date=curr_date.strftime('%Y%m%d'), type=type))
+        curr_date += dt.timedelta(days=1)
+
+    return files
+
+
 def make_narr_grib_list(start_date, end_date):
     if (type(start_date) is not dt.datetime and type(start_date) is not dt.date or
             type(end_date) is not dt.datetime and type(end_date) is not dt.date):
@@ -146,7 +171,7 @@ def list_narr_sfc_tar_files(narr_files, start_date, end_date, extension="tar"):
         curr_date = narr_next_sfc_date(curr_date)
 
 def parse_args():
-    allowed_mets = ["narr"]
+    allowed_mets = ["narr","era5"]
     parser = argparse.ArgumentParser(description='Generate the list of meteorology files expected by WPS for a given '
                                                  'date range (either the .tar archives or the actual GRIB files)',
                                      formatter_class=argparse.RawTextHelpFormatter)
@@ -189,6 +214,14 @@ if __name__ == "__main__":
         else:
             files = make_narr_tar_list(start_datetime.date(), end_datetime.date())
         print(delim.join(files))
+
+    elif met == "era5":
+        if do_grib:
+            files = make_era_grib_list(start_datetime, end_datetime)
+        else:
+            raise RuntimeError("Met type {0} only supports grib format".format(met))
+        print(delim.join(files))
+
     else:
         raise RuntimeError("No action specified for met type {0}".format(met))
 

@@ -57,9 +57,8 @@ while [ $# -gt 0 ]; do
         echo ""
         echo "    ./$myname compile : will execute the compilation of all"
         echo "        the components of WRF-Chem and it's input preparation,"
-        echo "        including WRF-Chem, WPS, convert_emiss, emiss_v0x.F,"
-        echo "        megan_bio_emiss, and mozbc. It will skip compiling if"
-        echo "        it finds an existing .exe file."
+        echo "        including WRF-Chem, WPS, megan_bio_emiss, and mozbc."
+        echo "        It will skip compiling if it finds an existing .exe file."
         echo ""
         echo "    ./$myname clean : will remove all compiled files for a clean"
         echo "        compile."
@@ -70,7 +69,7 @@ while [ $# -gt 0 ]; do
         echo ""
         echo "  ***************************** INPUT PREPARATION: *****************************"
         echo ""
-        echo "    ./$myname prepinpt : will prepare meteorology, NEI emissions,"
+        echo "    ./$myname prepinpt : will prepare meteorology, MEIC emissions,"
         echo "        MEGAN emissions, and MOZBC initial and boundary conditions."
         echo ""
         echo "    ./$myname prepinpt check : will just check that everything required"
@@ -147,13 +146,12 @@ while [ $# -gt 0 ]; do
         echo "  failed using the numeric value as a binary flag. For compile:"
         echo "      1st bit = WRF (compile) or real.exe (prepinpt met-only)"
         echo "      2nd bit = WPS"
-        echo "      3rd bit = convert_emiss"
-        echo "      4th bit = emiss_v0x"
-        echo "      5th bit = megan_bio_emiss"
-        echo "      6th bit = mozbc"
-        echo "      7th bit = postcheck (prepinpt only)"
-        echo "  So an exit code of 1 means only WRF failed to compile, while 56 (= 000111)"
-        echo "  means emiss_v0x, megan_bio_emiss, and mozbc all failed to compile."
+        echo "      3rd bit = emiss"
+        echo "      4th bit = megan_bio_emiss"
+        echo "      5th bit = mozbc"
+        echo "      6th bit = postcheck (prepinpt only)"
+        echo "  So an exit code of 1 means only WRF failed to compile, while 48(= 00011)"
+        echo "  megan_bio_emiss, and mozbc all failed to compile."
         echo "  The codes are the same for prepinpt, except that the first bit will only"
         echo "  be set if you run prepinpt with the 'met-only' option, in which case it"
         echo "  reflects the success or failure of real.exe after WPS is completed."
@@ -250,7 +248,7 @@ cd ..
 missingdir=""
 if [ ! -d WRFV3 ]; then missingdir="$missingdir WRFV3"; fi
 if [ ! -d WPS ]; then missingdir="$missingdir WPS"; fi
-if [ ! -d NEI ]; then missingdir="$missingdir NEI"; fi
+if [ ! -d MEIC ]; then missingdir="$missingdir MEIC"; fi
 if [ ! -d MEGAN ]; then missingdir="$missingdir MEGAN"; fi
 if [ ! -d MOZBC ]; then missingdir="$missingdir MOZBC"; fi
 

@@ -79,7 +79,7 @@ else
 fi
 
 # Now MEGAN
-cd ../../../MEGAN/src
+cd ../MEGAN/src
 echo ""
 echo "Compiling megan_bio_emiss..."
 ./make_util megan_bio_emiss >& "$mydir/COMPLOGS/compile_megan.log"

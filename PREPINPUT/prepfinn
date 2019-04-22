@@ -1,0 +1,61 @@
+#!/bin/bash
+# 1) run real with biomass_burn_opt=0
+# 2) go into the FINN directory and run it
+# 3) restore namelist
+
+cd "`dirname $0`"
+mydir="`pwd -P`"
+pyprog="$mydir/../CONFIG/autowrf_namelist_main.py"
+
+if [[ $FDDA_ON == 1 ]]; then
+    fdda_args="--grid_fdda=0"
+else
+    fdda_args=""
+fi
+
+python $pyprog tempmod --biomass_burn_opt=0 --bio_emiss_opt=0 --restart=.false. $fdda_args
+
+cd ../../WRFV3/run
+
+# Double check that the namelist is linked to the one in the CONFIG directory. Backup
+# only if not already a link to somewhere
+if [ -f namelist.input ]; then
+    lnk=`readlink namelist.input`
+    if [ ! -z $lnk ]; then
+        mv namelist.input namelist.input.autowrf-backup
+    fi  
+fi
+ln -s "$mydir/../CONFIG/namelist.input"
+
+./real.exe
+realexit=$?
+if [ $realexit -ne 0 ]; then
+    echo "real.exe failed with exit code $realexit when running the full period in preparation for"
+    echo "FINN. You should run it directly (with mpirun if compiled in parallel) and check any"
+    echo "output to identify the problem"
+    exit 1
+fi
+
+cd ../../FINN/src
+./fire_emis < namelist.finn >& "$mydir/../PREPLOGS/finn.log"
+finnexit=$?
+if [ $finnexit -ne 0 ]; then
+    echo "FINN failed with exit code $finnexit. Review finn.log in $mydir/../PREPLOGS to determine"
+    echo "the cause."
+    exit $finnexit
+fi
+
+if [ ! ls wrffirechemi* 1> /dev/null 2>&1 ]; then
+    echo "FINN failed to produce wrffirechemi_d01*. Review finn.log in $mydir/../PREPLOGS to determine"
+    echo "the cause."
+    exit 1
+fi
+
+for f in wrffirechemi*; do
+    if [ -f "../../WRFV3/run/$f" ]; then
+        mv "../../WRFV3/run/${f}" "../../WRFV3/run/${f}.autowrf-backup"
+    fi
+done
+
+cp wrffirechemi_d01* ../../WRFV3/run/
+exit 0

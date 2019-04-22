@@ -22,10 +22,13 @@ if $cleaninpt; then
     cd ../../WPS
     rm -f met_em*
 
-    cd ../MEIC/src
+    cd ../FINN/src
+    rm -f wrffirechemi*
+
+    cd ../../MEIC/src
     rm -f wrfem*
 
-    cd ../../../MEGAN/src
+    cd ../MEGAN/src
     rm -f wrfbiochemi*
 else
 
@@ -35,11 +38,15 @@ else
     cd ../WPS
     ./clean
 
-    cd ../../../MEGAN/src/
+    cd ../../FINN/src/
+    rm fire_emis
+    make clean
+
+    cd ../../MEGAN/src/
     rm megan_bio_emiss
     make clean
 
-    cd ../../MOZBC/src
+    cd ../MOZBC/src
     make clean
 
 fi

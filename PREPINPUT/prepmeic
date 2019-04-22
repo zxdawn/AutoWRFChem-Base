@@ -1,14 +1,21 @@
 #!/bin/bash
-# Okay, this one will not be too bad. All it needs to do is
-# go into the MEIC directory and run it.
-# This will however handle the copying and linking of the wrfem
-# files in the run directory
+# 1) run real with bio_emiss_opt=0 and biomass_burn_opt=0
+# 2) go into the MEIC directory and run it
+# 3) restore namelist
+
 cd `dirname $0`
 mydir=`pwd -P`
+pyprog="$mydir/../CONFIG/autowrf_namelist_main.py"
 
-cd "$mydir/../../MEIC/src"
-python ./mozart.py
-emissexit=$?
+if [[ $FDDA_ON == 1 ]]; then
+    fdda_args="--grid_fdda=0"
+else
+    fdda_args=""
+fi
+
+python $pyprog tempmod --emiss_opt=0 --biomass_burn_opt=0 --bio_emiss_opt=0 --restart=.false. $fdda_args
+
+cd ../../WRFV3/run
 
 # Ensure that the WPS namelist is linked to the one in the CONFIG folder
 if [ -e namelist.wps ]; then
@@ -18,21 +25,42 @@ if [ -e namelist.wps ]; then
         mv namelist.wps namelist.wps.autowrf-backup
     fi
 fi
-
 ln -s "$mydir/../CONFIG/namelist.wps"
+
+./real.exe
+realexit=$?
+if [ $realexit -ne 0 ]; then
+    echo "real.exe failed with exit code $realexit when running the full period in preparation for"
+    echo "MEIC. You should run it directly (with mpirun if compiled in parallel) and check any"
+    echo "output to identify the problem"
+    exit 1
+fi
+
+cd "$mydir/../../MEIC/src"
+python ./mozart.py
+emissexit=$?
 
 if [ $emissexit -ne 0 ]; then
     echo "mozart.py failed with exit code $emissexit"
     exit 1
 fi
 
+if [ ! -f wrfchemi_00z_d01 ]; then
+    echo "mozart.py failed to produce wrfchemi_00z_d01. You should run it directly (with"
+    echo "mpirun if compiled in parallel) and check any output to identify the problem."
+    exit 1
+fi
+
 for f in wrfchemi*; do
-    if [ -f "../../../WRFV3/run/$f" ]; then
-        mv "../../../WRFV3/run/${f}" "../../../WRFV3/run/${f}.autowrf-backup"
+    if [ -f "../../WRFV3/run/$f" ]; then
+        mv "../../WRFV3/run/${f}" "../../WRFV3/run/${f}.autowrf-backup"
     fi
 done
 
-cp wrfchemi* ../../../WRFV3/run
+cp wrfchemi* ../../WRFV3/run
+
+# Restore the namelist to its user defined state, minus grid_fdda if it was on
+python $pyprog tempmod $fdda_args
 
 # Link the output to make it easier to find
 #cd "$mydir/../PREPLOGS"

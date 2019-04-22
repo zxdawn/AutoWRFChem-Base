@@ -60,6 +60,19 @@ if ! $metonly; then
         badopts=true
     fi
 
+    # Do the same for FINN
+    python $pyprog check_wrf_opt --io_form_auxinput7=2,11 --biomass_burn_opt=2
+    optchk=$?
+    if [ $optchk -ne 0 ]; then
+        echo ""
+        echo "To use FINN for  biomass burning emissions, you must have io_form_auxinput7 set"
+        echo "to 2 or 11 under the &time_control section of the WRF namelist (11 will"
+        echo "only work if parallel netCDF is installed) and biomass_burn_opt set to 2"
+        echo "under the &chem section of the namelist. One or both of these is not"
+        echo "true. Correct them and rerun the input preparation."
+        badopts=true
+    fi
+
     # Do the same for MEGAN
     python $pyprog check_wrf_opt --io_form_auxinput6=2,11 --bio_emiss_opt=3
     optchk=$?
@@ -172,6 +185,20 @@ if ! $chemonly; then
 fi
 
 if ! $metonly; then
+    cd "$rootdir/FINN"
+    ls data/GLOBAL* >& /dev/null
+    megtst=$?
+    if [ $megtst -ne 0 ]; then
+        echo ""
+        echo "Fail: Could not find any GLOBAL* files under data/ in FINN."
+        echo "Is data a directory in FINN that contains the FINN data,"
+        echo "or a link to such a directory?"
+        badopts=true
+    else
+        echo ""
+        echo "Pass: Found GLOBAL* files under FINN/data."
+    fi
+
     cd "$rootdir/MEGAN"
     ls data/lai* >& /dev/null
     megtst=$?

@@ -147,11 +147,12 @@ while [ $# -gt 0 ]; do
         echo "      1st bit = WRF (compile) or real.exe (prepinpt met-only)"
         echo "      2nd bit = WPS"
         echo "      3rd bit = emiss"
-        echo "      4th bit = megan_bio_emiss"
-        echo "      5th bit = mozbc"
-        echo "      6th bit = postcheck (prepinpt only)"
-        echo "  So an exit code of 1 means only WRF failed to compile, while 48(= 00011)"
-        echo "  megan_bio_emiss, and mozbc all failed to compile."
+        echo "      4th bit = finn"
+        echo "      5th bit = megan_bio_emiss"
+        echo "      6th bit = mozbc"
+        echo "      7th bit = postcheck (prepinpt only)"
+        echo "  So an exit code of 1 means only WRF failed to compile, while 28(= 000111)"
+        echo "  finn, megan_bio_emiss and mozbc all failed to compile."
         echo "  The codes are the same for prepinpt, except that the first bit will only"
         echo "  be set if you run prepinpt with the 'met-only' option, in which case it"
         echo "  reflects the success or failure of real.exe after WPS is completed."
@@ -249,6 +250,7 @@ missingdir=""
 if [ ! -d WRFV3 ]; then missingdir="$missingdir WRFV3"; fi
 if [ ! -d WPS ]; then missingdir="$missingdir WPS"; fi
 if [ ! -d MEIC ]; then missingdir="$missingdir MEIC"; fi
+if [ ! -d FINN ]; then missingdir="$missingdir FINN"; fi
 if [ ! -d MEGAN ]; then missingdir="$missingdir MEGAN"; fi
 if [ ! -d MOZBC ]; then missingdir="$missingdir MOZBC"; fi
 

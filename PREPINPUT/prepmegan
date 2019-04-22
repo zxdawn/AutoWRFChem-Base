@@ -8,38 +8,38 @@ cd "`dirname $0`"
 mydir="`pwd -P`"
 pyprog="$mydir/../CONFIG/autowrf_namelist_main.py"
 
-if [[ $FDDA_ON == 1 ]]; then
-    fdda_args="--grid_fdda=0"
-else
-    # Just being explicit, since an unassigned variable
-    # would also return an empty string
-    fdda_args=""
-fi
-python $pyprog tempmod --bio_emiss_opt=0 $fdda_args
-cd ../../WRFV3/run
-
-if [ -f wrfbiochemi_d01 ]; then
-    mv wrfbiochemi_d01 wrfbiochemi_d01.autowrf-backup
-fi
-
-# Double check that the namelist is linked to the one in the CONFIG directory. Backup
-# only if not already a link to somewhere
-if [ -f namelist.input ]; then
-    lnk=`readlink namelist.input`
-    if [ ! -z $lnk ]; then
-        mv namelist.input namelist.input.autowrf-backup
-    fi  
-fi
-ln -s "$mydir/../CONFIG/namelist.input"
-
-./real.exe
-realexit=$?
-if [ $realexit -ne 0 ]; then
-    echo "real.exe failed with exit code $realexit when running the full period in preparation for"
-    echo "MEGAN. You should run it directly (with mpirun if compiled in parallel) and check any"
-    echo "output to identify the problem"
-    exit 1
-fi
+#if [[ $FDDA_ON == 1 ]]; then
+#    fdda_args="--grid_fdda=0"
+#else
+#    # Just being explicit, since an unassigned variable
+#    # would also return an empty string
+#    fdda_args=""
+#fi
+#python $pyprog tempmod --bio_emiss_opt=0 $fdda_args
+#cd ../../WRFV3/run
+#
+#if [ -f wrfbiochemi_d01 ]; then
+#    mv wrfbiochemi_d01 wrfbiochemi_d01.autowrf-backup
+#fi
+#
+## Double check that the namelist is linked to the one in the CONFIG directory. Backup
+## only if not already a link to somewhere
+#if [ -f namelist.input ]; then
+#    lnk=`readlink namelist.input`
+#    if [ ! -z $lnk ]; then
+#        mv namelist.input namelist.input.autowrf-backup
+#    fi  
+#fi
+#ln -s "$mydir/../CONFIG/namelist.input"
+#
+#./real.exe
+#realexit=$?
+#if [ $realexit -ne 0 ]; then
+#    echo "real.exe failed with exit code $realexit when running the full period in preparation for"
+#    echo "MEGAN. You should run it directly (with mpirun if compiled in parallel) and check any"
+#    echo "output to identify the problem"
+#    exit 1
+#fi
 
 cd ../../MEGAN/src
 ./megan_bio_emiss < namelist.megan >& "$mydir/../PREPLOGS/megan.log"

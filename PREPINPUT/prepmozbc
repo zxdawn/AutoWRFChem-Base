@@ -102,7 +102,7 @@ perl -pi -e "s/$oldline/$newline/g" $mozfile
 cd ../../WRFV3/run
 # Ensure that the namelist is back to the regular options
 python $pyprog tempmod
-# Then double check that the NEI and MEGAN outputs are here
+# Then double check that the MEIC, MEGAN, exo_coldens and wesely outputs are here
 missingfiles=false
 if [ ! -f "wrfchemi_00z_d01" -o ! -f "wrfchemi_12z_d01" ]; then
     echo "One or both of wrfchemi_00z_d01, wrfchemi_12z_d01 are not present in run directory"
@@ -110,6 +110,14 @@ if [ ! -f "wrfchemi_00z_d01" -o ! -f "wrfchemi_12z_d01" ]; then
 fi
 if [ ! -f "wrfbiochemi_d01" ]; then
     echo "wrfbiochemi_d01 is not present in run directory"
+    missingfiles=true
+fi
+if [ ! -f "exo_coldens_d01" ]; then
+    echo "exo_coldens_d01 is not present in run directory"
+    missingfiles=true
+fi
+if [ ! -f "wrf_season_wes_usgs_d01.nc" ]; then
+    echo "wrf_season_wes_usgs_d01.nc is not present in run directory"
     missingfiles=true
 fi
 if $missingfiles; then

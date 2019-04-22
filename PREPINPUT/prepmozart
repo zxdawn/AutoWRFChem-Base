@@ -1,0 +1,81 @@
+#!/bin/bash
+# This too will have several steps. First we need to rerun
+# real for the whole time, making sure bio_emiss_opt is still 0,
+# but that it will be reset to 3 when the regular run is done
+# and that io_form_auxinput6 is set to 2 or 11.
+
+cd "`dirname $0`"
+mydir="`pwd -P`"
+pyprog="$mydir/../CONFIG/autowrf_namelist_main.py"
+
+#if [[ $FDDA_ON == 1 ]]; then
+#    fdda_args="--grid_fdda=0"
+#else
+#    fdda_args=""
+#fi
+#python $pyprog tempmod $fdda_args
+#cd ../../WRFV3/run
+#
+#if [ -f exo_coldens_d01 ]; then
+#    mv exo_coldens_d01 exo_coldens_d01.autowrf-backup
+#fi
+#
+## Double check that the namelist is linked to the one in the CONFIG directory. Backup
+## only if not already a link to somewhere
+#if [ -f namelist.input ]; then
+#    lnk=`readlink namelist.input`
+#    if [ ! -z $lnk ]; then
+#        mv namelist.input namelist.input.autowrf-backup
+#    fi  
+#fi
+#ln -s "$mydir/../CONFIG/namelist.input"
+#
+#./real.exe
+#realexit=$?
+#if [ $realexit -ne 0 ]; then
+#    echo "real.exe failed with exit code $realexit when running the full period in preparation for"
+#    echo "MEGAN. You should run it directly (with mpirun if compiled in parallel) and check any"
+#    echo "output to identify the problem"
+#    exit 1
+#fi
+
+cd ../../MOZART/src
+
+./exo_coldens < namelist.exo_coldens >& "$mydir/../PREPLOGS/exo_coldens.log"
+exo_coldensexit=$?
+if [ $exo_coldensexit -ne 0 ]; then
+    echo "exo_coldens failed with exit code $exo_coldensexit. Review exo_coldens.log in $mydir/../PREPLOGS to determine"
+    echo "the cause."
+    exit $exo_coldensexit
+fi
+
+./wesely < namelist.wesely >& "$mydir/../PREPLOGS/wesely.log"
+weselyexit=$?
+if [ $weselyexit -ne 0 ]; then
+    echo "wesely failed with exit code $weselyexit. Review wesely.log in $mydir/../PREPLOGS to determine"
+    echo "the cause."
+    exit $weselyexit
+fi
+
+
+if [ ! -f exo_coldens_d01 ]; then
+    echo "exo_coldens failed to produce exo_coldens_d01. Review exo_coldens.log in $mydir/../PREPLOGS to determine"
+    echo "the cause."
+    exit 1
+fi
+if [ ! -f wrf_season_wes_usgs_d01.nc ]; then
+    echo "wesely failed to produce wrf_season_wes_usgs_d01.nc. Review wesely.log in $mydir/../PREPLOGS to determine"
+    echo "the cause."
+    exit 1
+fi
+
+if [ -f "../../WRFV3/run/exo_coldens_d01" ]; then
+    mv "../../WRFV3/run/exo_coldens_d01{,.autowrf-backup}"
+fi
+if [ -f "../../WRFV3/run/wrf_season_wes_usgs_d01.nc" ]; then
+    mv "../../WRFV3/run/wrf_season_wes_usgs_d01.nc{,.autowrf-backup}"
+fi
+
+cp exo_coldens_d01 ../../WRFV3/run/
+cp wrf_season_wes_usgs_d01.nc ../../WRFV3/run/
+exit 0

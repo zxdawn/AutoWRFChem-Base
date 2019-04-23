@@ -23,3 +23,14 @@ BEGIN NARR
     wrf:domains:num_metgrid_soil_levels = 4
     wrf:fdda:gfdda_interval_m = 180
 END NARR
+
+BEGIN ERA5
+    wps:share:interval_seconds = 10800
+    wrf:time_control:interval_seconds = 10800
+    wrf:domains:p_top_requested = 10000
+    wrf:domains:e_vert = 30
+    wrf:domains:num_metgrid_levels = 138
+    wrf:domains:num_metgrid_soil_levels = 4
+    wrf:fdda:gfdda_interval_m = 180
+END ERA5
+

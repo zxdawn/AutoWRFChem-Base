@@ -91,7 +91,7 @@ if $finishonly; then
         domegan=true
     fi
 
-    if [[ -f exo_coldens_d01 & -f wrf_season_wes_usgs_d01.nc ]]; then
+    if [[ -f exo_coldens_d01 && -f wrf_season_wes_usgs_d01.nc ]]; then
         domozart=false
     else
         domozart=true
@@ -199,6 +199,15 @@ if $metonly; then
         if [ $wpsexit -eq 0 ]; then
             echo "Running real.exe since only the meterology has been requested."
             cd ../WRFV3/run
+
+            if [[ $FDDA_ON == 1 ]]; then
+                fdda_args="$pyargs --grid_fdda=0"
+            else
+                fdda_args=""
+            fi
+
+            python $pyprog tempmod --emiss_opt=0 --biomass_burn_opt=0 --bio_emiss_opt=0 --restart=.false. $fdda_args
+
             ./real.exe
             realexit=$?
             if [ $realexit -eq 0 ]; then

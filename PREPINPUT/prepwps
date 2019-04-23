@@ -190,6 +190,18 @@ if [[ $ugexit != 0 ]]; then
     exit 1
 fi
 
+# Now produce additional intermediate files
+if [[ $metType == 'ERA5' ]]; then
+    ./util/calc_ecmwf_p.exe
+    ceexit=$?
+    if [[ $ceexit != 0 ]]; then
+        echo "In ${wpsdir}: ./util/calc_ecmwf_p.exe failed with exit code $ceexit"
+        echo "Aborting the remainer of WPS"
+        exit 1
+    fi
+fi
+
+
 # Finally metgrid
 rm -f met_em*
 mglogfile="${wpsdir}_metgrid.log"

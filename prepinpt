@@ -200,13 +200,13 @@ if $metonly; then
             echo "Running real.exe since only the meterology has been requested."
             cd ../WRFV3/run
 
-            if [[ $FDDA_ON == 1 ]]; then
-                fdda_args="$pyargs --grid_fdda=0"
-            else
-                fdda_args=""
-            fi
+            #if [[ $FDDA_ON == 1 ]]; then
+            #    fdda_args="$pyargs --grid_fdda=0"
+            #else
+            #    fdda_args=""
+            #fi
 
-            python $pyprog tempmod --emiss_opt=0 --biomass_burn_opt=0 --bio_emiss_opt=0 --restart=.false. $fdda_args
+            python $pyprog tempmod --chem_opt=0 --emiss_opt=0 --biomass_burn_opt=0 --bio_emiss_opt=0 --restart=.false.
 
             ./real.exe
             realexit=$?

@@ -131,7 +131,9 @@ fi
 # Check if the met data was untarred yet or not
 if [[ $metType == 'NARR' ]]; then
     grib_prefix='merged_AWIP32'
-elif [[ $metType == 'ERA5' ]]; then
+elif [[ $metType == 'ERA-interim.ml' ]]; then
+    grib_prefix='ecmf_'
+elif [[ $metType == 'ERA-interim.pl' ]]; then
     grib_prefix='ecmf_'
 else
     echo "Met type '$metType' not recognized"
@@ -191,7 +193,7 @@ if [[ $ugexit != 0 ]]; then
 fi
 
 # Now produce additional intermediate files
-if [[ $metType == 'ERA5' ]]; then
+if [[ $metType == 'ERA-interim.ml' ]]; then
     ./util/calc_ecmwf_p.exe
     ceexit=$?
     if [[ $ceexit != 0 ]]; then

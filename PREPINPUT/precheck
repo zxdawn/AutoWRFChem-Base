@@ -120,7 +120,9 @@ if ! $chemonly; then
         # Check if the met directory has untarred GRIB files or tar archives
         if [[ $metType == 'NARR' ]]; then
             grib_prefix='merged_AWIP32'
-        elif [[ $metType == 'ERA5' ]]; then
+        elif [[ $metType == 'ERA-interim.ml' ]]; then
+            grib_prefix='ecmf_'
+        elif [[ $metType == 'ERA-interim.pl' ]]; then
             grib_prefix='ecmf_'
         else
             echo "Met type '$metType' not recognized"

@@ -27,7 +27,7 @@ class Namelist:
     # the NamelistContainer class to print the list of allowable meteorogies. Make
     # sure that each entry in this list has a corresponding if or elif branch in
     # SetMetOpts for each child namelist
-    mets = ["NARR","ERA5"]
+    mets = ["NARR","ERA-interim.ml","ERA-interim.pl"]
 
     def __init__(self, namelist_file):
         self.opts = OrderedDict()
